@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Study Plan</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fdfdfd;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    tr.today {
+      background-color: #d2f9d2 !important;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>📚 Daily Study Plan</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Chapter</th>
+        <th>Activity</th>
+        <th>Done ✅</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      let chapters = [
+        "Physical World", "Kinematics", "Laws of Motion", "Rotational Motion", "Gravitation",
+        "Properties of Solids", "Mechanical Properties of Fluids", "Thermal Properties of Matter",
+        "Thermodynamics", "Behaviour of Perfect Gas and Kinetics", "Oscillations", "Waves",
+        "Some Basic Concepts of Chemistry", "Structure of Atom", "Classification of Elements",
+        "Chemical Bonding", "Chemical Thermodynamics", "Equilibrium", "Redox Reactions",
+        "Organic Chemistry Basics", "Hydrocarbons",
+        "Living World", "Biological Classification", "Plant Kingdom", "Animal Kingdom",
+        "Morphology of Flowering Plants", "Anatomy of Plants", "Structural Organisation in Animals",
+        "Cell: Unit of Life", "Biomolecules", "Cell Cycle", "Photosynthesis", "Respiration in Plants",
+        "Plant Growth and Development", "Breathing", "Circulation", "Excretion",
+        "Locomotion", "Neural Control", "Endocrine System"
+      ];
+
+      const activities = [
+        "Read NCERT thoroughly, make short notes.",
+        "Watch related video, clear doubts, practice questions.",
+        "Revise & summarise previous chapter.",
+        "Solve questions, focus on weak points.",
+        "Mock test or quiz for these topics.",
+        "Mixed revision from recent chapters.",
+        "Rest, review errors, revise flashcards."
+      ];
+
+      function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      if (!localStorage.getItem("shuffledChapters")) {
+        shuffle(chapters);
+        localStorage.setItem("shuffledChapters", JSON.stringify(chapters));
+      } else {
+        chapters = JSON.parse(localStorage.getItem("shuffledChapters"));
+      }
+
+      const start = new Date("2025-07-07");
+      const todayStr = new Date().toISOString().split('T')[0];
+      const saved = JSON.parse(localStorage.getItem("studyPlanTicks") || "{}");
+      const tbody = document.querySelector("tbody");
+
+      function formatDate(date) {
+        return date.toISOString().split('T')[0];
+      }
+
+      function saveTick(id, value) {
+        saved[id] = value;
+        localStorage.setItem("studyPlanTicks", JSON.stringify(saved));
+      }
+
+      for (let i = 0; i < chapters.length; i += 2) {
+        for (let j = 0; j < 7; j++) {
+          const date = new Date(start);
+          date.setDate(start.getDate() + (i / 2) * 7 + j);
+          const dateStr = formatDate(date);
+          const chapter = j < 2 ? chapters[i] : chapters[i + 1];
+          const activity = activities[j];
+          const uid = `${dateStr}_${chapter.replace(/\s+/g, '_')}`;
+
+          const tr = document.createElement("tr");
+          if (dateStr === todayStr) tr.classList.add("today");
+
+          tr.innerHTML = `
+            <td>${dateStr}</td>
+            <td>${chapter}</td>
+            <td>${activity}</td>
+            <td><input type="checkbox" id="${uid}" ${saved[uid] ? 'checked' : ''}></td>
+          `;
+
+          tr.querySelector("input").addEventListener("change", (e) => {
+            saveTick(uid, e.target.checked);
+          });
+
+          tbody.appendChild(tr);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
