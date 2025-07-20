@@ -89,7 +89,7 @@
         chapters = JSON.parse(localStorage.getItem("shuffledChapters"));
       }
 
-      const start = new Date("2025-07-07");
+      const start = new Date("2025-07-21"); // <-- Updated start date
       const todayStr = new Date().toISOString().split('T')[0];
       const saved = JSON.parse(localStorage.getItem("studyPlanTicks") || "{}");
       const tbody = document.querySelector("tbody");
